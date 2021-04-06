@@ -6,6 +6,7 @@ import {FieldConfig, FieldConfigOptionsBuilder, DynamicFieldConfigOptionsBuilder
 import {takeUntil, tap} from 'rxjs/operators';
 import {fromJS, List, Map, Set} from 'immutable';
 import * as _ from 'lodash-es';
+
 @Component({
   selector: 'sb-dynamic-multiple-dropdown',
   templateUrl: './dynamic-multiple-dropdown.component.html',
@@ -32,14 +33,12 @@ export class DynamicMultipleDropdownComponent implements OnInit, OnChanges, OnDe
 
   _: any = _;
 
-
   public isDependsInvalid: any;
-
+  masterSelected: boolean;
   showModal = false;
   tempValue = Set<any>();
   resolvedOptions = List<Map<string, string>>();
   optionValueToOptionLabelMap = Map<any, string>();
-
   fromJS = fromJS;
 
   private dispose$ = new Subject<undefined>();
@@ -53,8 +52,10 @@ export class DynamicMultipleDropdownComponent implements OnInit, OnChanges, OnDe
   constructor(
     private changeDetectionRef: ChangeDetectorRef
   ) {
+
   }
   ngOnInit() {
+
     if (this.field && this.field.range) {
       this.options = this.field.range;
     }
@@ -86,6 +87,7 @@ export class DynamicMultipleDropdownComponent implements OnInit, OnChanges, OnDe
       takeUntil(this.dispose$)
     ).subscribe();
     this.setupOptions();
+    this.isAllSelected();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -153,7 +155,10 @@ export class DynamicMultipleDropdownComponent implements OnInit, OnChanges, OnDe
         this.tempValue = this.tempValue.add(option.get('name'));
       }
     }
+
+    this.masterSelected = this.tempValue.size === this.options.length;
   }
+
   onCancel() {
     this.formControlRef.markAsDirty();
     this.showModal = false;
@@ -201,7 +206,7 @@ export class DynamicMultipleDropdownComponent implements OnInit, OnChanges, OnDe
       const optionMap = _.map(this.options, option => {
         return {
           identifier: option.value || option.identifier || option.name || option,
-          name: option.label || option.name || option.value || option,
+          name: option.label || option.name || option.value || option
         };
       });
       this.resolvedOptions = fromJS(optionMap);
@@ -248,4 +253,24 @@ export class DynamicMultipleDropdownComponent implements OnInit, OnChanges, OnDe
     this.setTempValue(this.default);
   }
 
+  isAllSelected() {
+    if (this.isOptionsArray()) {
+      if (this.default && this.default.length > 1 && this.default.length == this.options.length) {
+        this.masterSelected = true;
+      }
+    }
+  }
+
+  checkUncheckAll(event) {
+    if (event.target.checked) {
+      this.formControlRef.patchValue(this.isMultiple ? this.options : this.options[0]);
+      this.formControlRef.markAsDirty();
+      this.masterSelected = true;
+      this.showModal = false;
+    } else {
+      this.formControlRef.patchValue(null);
+      this.resetTempValue();
+      this.masterSelected = false;
+    }
+  }
 }
