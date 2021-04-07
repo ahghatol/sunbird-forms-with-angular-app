@@ -1,9 +1,8 @@
-import {Component, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, EventEmitter, AfterViewInit} from '@angular/core';
+import {Component, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, EventEmitter} from '@angular/core';
 import {FormControl, FormGroup} from '@angular/forms';
 import {Observable, Subject, Subscription, combineLatest, merge} from 'rxjs';
-import {FieldConfig, FieldConfigOption, FieldConfigOptionsBuilder, DynamicFieldConfigOptionsBuilder,
-  CustomFormControl, CustomFormGroup} from '../common-form-config';
-import {filter, tap} from 'rxjs/operators';
+import {FieldConfig, FieldConfigOption, FieldConfigOptionsBuilder, DynamicFieldConfigOptionsBuilder} from '../common-form-config';
+import {tap} from 'rxjs/operators';
 import * as _ from 'lodash-es';
 import {ValueComparator} from '../utilities/value-comparator';
 
@@ -12,7 +11,7 @@ import {ValueComparator} from '../utilities/value-comparator';
   templateUrl: './dynamic-dropdown.component.html',
   styleUrls: ['./dynamic-dropdown.component.css']
 })
-export class DynamicDropdownComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+export class DynamicDropdownComponent implements OnInit, OnChanges, OnDestroy {
   ValueComparator = ValueComparator;
   @Input() field: FieldConfig<String>;
   @Input() disabled?: boolean;
@@ -22,8 +21,8 @@ export class DynamicDropdownComponent implements OnInit, OnChanges, OnDestroy, A
   @Input() isMultiple?: boolean;
   @Input() context?: FormControl;
   @Input() contextTerms?: any;
-  @Input() formControlRef?: any;
-  @Input() formGroup?: CustomFormGroup;
+  @Input() formControlRef?: FormControl;
+  @Input() formGroup?: FormGroup;
   @Input() default?: any;
   @Input() contextData: any;
   @Input() dataLoadStatusDelegate: Subject<'LOADING' | 'LOADED'>;
@@ -38,15 +37,10 @@ export class DynamicDropdownComponent implements OnInit, OnChanges, OnDestroy, A
   public isDependsInvalid: any;
 
   options$?: Observable<FieldConfigOption<any>[]>;
-  private dispose$ = new Subject<undefined>();
   contextValueChangesSubscription?: Subscription;
   selectedType: any;
   tempAssociation: any;
   latestParentValue: string;
-  isDynamicDependencyTerms: any;
-  termsForDependantFieldsBySelectedValue: any;
-  associationOption: any;
-
   constructor() {
   }
 
@@ -67,81 +61,69 @@ export class DynamicDropdownComponent implements OnInit, OnChanges, OnDestroy, A
 
   ngOnInit() {
     if (!this.options) {
-      this.options = _.isEmpty(this.field.options) ? this.isOptionsClosure(this.field.options) && this.field.options : [];
+      this.options = [];
     }
-    if (this.field && this.field.range && !this.options) {
+
+    // if (this.context) {
+      // this.contextValueChangesSubscription = this.context.valueChanges.pipe(
+      //   tap(() => {
+      //     this.formControlRef.patchValue(null);
+      //   })
+      // ).subscribe();
+    // }
+
+    this.dataLoadStatusDelegate.subscribe(
+      console.log
+    );
+
+    if (this.field && this.field.range) {
       this.options = this.field.range;
     } else if (_.isEmpty(this.options) && _.isEmpty(this.field.range) && this.default) {
       this.field.range = [];
       this.field.range.push(this.default);
     }
+
+
     if (!_.isEmpty(this.depends)) {
-      this.handleDependantFieldChanges();
-    }
-    this.handleSelfChange();
-    this.handleClosureOption();
-    this.dataLoadStatusDelegate.subscribe();
-  }
-
-  ngAfterViewInit() {
-    if (this.default) {
-      this.handleDependantFieldChanges();
-    }
-  }
-
-  handleIfDefaultExists() {
-
-  }
-
-  handleDependantFieldChanges() {
-    this.contextValueChangesSubscription =  merge(..._.map(this.depends, depend => depend.valueChanges)).pipe(
+     this.contextValueChangesSubscription =  merge(..._.map(this.depends, depend => depend.valueChanges)).pipe(
       tap((value: any) => {
-        this.formControlRef.patchValue(null);
         this.latestParentValue = value;
         this.isDependsInvalid = _.includes(_.map(this.depends, depend => depend.invalid), true);
-        this.isDynamicDependencyTerms = _.compact(_.flatten(_.map(this.depends, depend => {
-          return depend.termsForDependantFields;
-        })));
-        this.associationOption = this.fetchDependencyTerms();
+        this.formControlRef.patchValue(null);
       })
       ).subscribe();
 
       this.isDependsInvalid = _.includes(_.map(this.depends, depend => depend.invalid), true);
-  }
-
-  handleSelfChange() {
-    this.formControlRef.valueChanges.pipe(
-      tap((value: any) => {
-        this.formControlRef.termsForDependantFields = [];
-        if (value && this.tempAssociation) {
-          this.termsForDependantFieldsBySelectedValue = this.getTermsBasedOnSelectedValue(this.tempAssociation, value);
-          this.formControlRef.termsForDependantFields.push(this.getTermsByValue([this.termsForDependantFieldsBySelectedValue], value, true));
-          this.formGroup.lastChangedField = {code: this.field.code, value: this.formControlRef.value};
-        } else {
-          this.tempAssociation && this.formControlRef.termsForDependantFields.push(this.getTermsByValue([this.tempAssociation], value, true));
-        }
-      })
-    ).subscribe();
-  }
+    }
 
 
-  handleClosureOption() {
     if (this.isOptionsClosure(this.options)) {
       // tslint:disable-next-line:max-line-length
-      this.options$ = (this.options as DynamicFieldConfigOptionsBuilder<any>)
-      (this.formControlRef,
-        this.depends,
-        this.formGroup,
-        () => this.dataLoadStatusDelegate.next('LOADING'),
-        () => this.dataLoadStatusDelegate.next('LOADED')) as any;
-
-      this.options$.subscribe(
-        (response) => {
-          this.isDependsInvalid = _.includes(_.map(this.depends, depend => depend.invalid), true);
-          this.dependencyTerms = response;
-        },
-      );
+      this.options$ = (this.options as DynamicFieldConfigOptionsBuilder<any>)(this.formControlRef, this.depends, this.formGroup, () => this.dataLoadStatusDelegate.next('LOADING'), () => this.dataLoadStatusDelegate.next('LOADED')) as any;
     }
+  }
+
+  ngOnDestroy(): void {
+    if (this.contextValueChangesSubscription) {
+      this.contextValueChangesSubscription.unsubscribe();
+    }
+  }
+
+  isOptionsArray(options: any) {
+    return Array.isArray(options);
+
+  }
+
+  isOptionsClosure(options: any) {
+    return typeof options === 'function';
+  }
+
+  isOptionsMap(input: any) {
+    return !Array.isArray(input) && typeof input === 'object';
+  }
+
+  isOptionsArrayMap(input: any) {
+    return Array.isArray(input) && typeof input[0] === 'object';
   }
 
   onChangeFacet($event) {
@@ -176,34 +158,6 @@ export class DynamicDropdownComponent implements OnInit, OnChanges, OnDestroy, A
     }
   }
 
-  fetchDependencyTerms() { // subject
-    if (!_.isEmpty(this.isDynamicDependencyTerms)) {
-      const filteredTerm = this.getTermsByValue(this.isDynamicDependencyTerms, this.getParentValue(), true);
-      if (filteredTerm) {
-        let tempAssociations: any;
-        let lookUp: string;
-        if (filteredTerm.categories) {
-          tempAssociations = filteredTerm.categories;
-          lookUp = 'code';
-        } else if (filteredTerm.terms) {
-          tempAssociations = filteredTerm.terms;
-          lookUp = 'category';
-        } else if (filteredTerm.associations) {
-          tempAssociations = filteredTerm.associations;
-          lookUp = 'category';
-        }
-
-        const filteredCategory = _.filter(tempAssociations, association => {
-          return (this.field.sourceCategory) ? (association[lookUp] === this.field.sourceCategory) :
-           association[lookUp] === this.field.code;
-        });
-        this.tempAssociation =  this.extractAndFlattenTerms(filteredCategory);
-
-      return this.tempAssociation;
-      }
-    }
-  }
-
 
   getParentValue() {
     return this.latestParentValue || _.compact(_.map(this.depends, 'value'));
@@ -217,31 +171,6 @@ export class DynamicDropdownComponent implements OnInit, OnChanges, OnDestroy, A
       return option[this.field.output];
     } else {
       return this.field.dataType === 'list' ? [option.name] : option.name;
-    }
-  }
-
-  getTermsByValue(categories, value,  doFlatten?) {
-    let array = categories;
-    if (doFlatten) {
-      array = _.flatten(categories);
-    }
-    if (!_.isEmpty(array)) {
-      return _.find(array, terms => {
-        return !_.isEmpty(this.field.output) ?
-        _.includes(value, terms[this.field.output]) :
-        _.includes(value, terms.name) ;
-      });
-
-    }
-  }
-
-  getTermsBasedOnSelectedValue(categories, value) {
-    if (categories) {
-     return  _.find(categories, category => {
-      return !_.isEmpty(this.field.output) ?
-          _.includes(value, category[this.field.output]) :
-          _.includes(value, category.name);
-      });
     }
   }
 
@@ -277,39 +206,7 @@ export class DynamicDropdownComponent implements OnInit, OnChanges, OnDestroy, A
     }
   }
 
-  extractAndFlattenTerms(categories) {
-    return _.flatten(_.map(categories, category => {
-      if (_.has(category, 'terms')) {
-        return category.terms;
-      } else if (_.has(category, 'association')) {
-        return category.associations;
-      } else if (_.has(category, 'categories')) {
-        return category.categories;
-      } else {
-        return category;
-      }
-    }));
-  }
+  convertOptionToArray(option, output?) {
 
-  isOptionsArray(options: any) {
-    return Array.isArray(options);
-  }
-
-  isOptionsClosure(options: any) {
-    return typeof options === 'function';
-  }
-
-  isOptionsMap(input: any) {
-    return !Array.isArray(input) && typeof input === 'object';
-  }
-
-  isOptionsArrayMap(input: any) {
-    return Array.isArray(input) && typeof input[0] === 'object';
-  }
-
-  ngOnDestroy(): void {
-    if (this.contextValueChangesSubscription) {
-      this.contextValueChangesSubscription.unsubscribe();
-    }
   }
 }

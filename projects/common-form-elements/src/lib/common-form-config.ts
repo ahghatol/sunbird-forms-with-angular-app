@@ -1,4 +1,4 @@
-import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {Observable} from 'rxjs';
 import {AsyncValidatorFn, FormControl, FormGroup} from '@angular/forms';
 
 export enum FieldConfigInputType {
@@ -106,22 +106,11 @@ export interface Validator {
 
 export type DynamicFieldConfigOptionsBuilder<T> =
   (control: FormControl, depends?: FormControl[], formGroup?: FormGroup, notifyLoading?: () => void,
-    notifyLoaded?: () => void, cb?: any) => Observable<FieldConfigOption<T>[]> | Promise<FieldConfigOption<T>[]>;
+    notifyLoaded?: () => void) => Observable<FieldConfigOption<T>[]> | Promise<FieldConfigOption<T>[]>;
 
 
 
 export interface SectionConfig<T> {
   name: string;
   fields: FieldConfig<T>[];
-}
-
-
-export interface CustomFormGroup extends FormGroup {
-  lastChangedField: any;
-}
-
-export interface CustomFormControl extends FormControl {
-  termsForDependantFields?: any;
-  customEventHandler$?: Subject<any>;
-  shouldListenToCustomEvent?: Boolean;
 }
