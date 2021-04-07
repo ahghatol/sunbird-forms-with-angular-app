@@ -86,6 +86,7 @@ export class DynamicMultipleDropdownComponent implements OnInit, OnChanges, OnDe
       takeUntil(this.dispose$)
     ).subscribe();
     this.setupOptions();
+    this.isAllSelected();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -260,14 +261,17 @@ export class DynamicMultipleDropdownComponent implements OnInit, OnChanges, OnDe
   }
 
   checkUncheckAll(event) {
+    this.formControlRef.patchValue(null);
+    this.resetTempValue();
+
     if (event.target.checked) {
-      this.formControlRef.patchValue(this.isMultiple ? this.options : this.options[0]);
-      this.formControlRef.markAsDirty();
+      this.resolvedOptions.forEach(option => {
+        this.addSelected(option);
+      });
+
       this.masterSelected = true;
-      this.showModal = false;
+      this.onSubmit();
     } else {
-      this.formControlRef.patchValue(null);
-      this.resetTempValue();
       this.masterSelected = false;
     }
   }
