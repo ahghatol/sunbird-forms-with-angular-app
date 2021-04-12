@@ -1,6 +1,8 @@
+import { from } from 'rxjs';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { CheckboxComponent } from './checkbox.component';
+import { PipesModule } from '../pipes/pipes.module';
 
 describe('CheckboxComponent', () => {
   let component: CheckboxComponent;
@@ -8,7 +10,9 @@ describe('CheckboxComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ CheckboxComponent ]
+      imports: [FormsModule, ReactiveFormsModule, PipesModule],
+      declarations: [ CheckboxComponent ],
+      providers: []
     })
     .compileComponents();
   }));

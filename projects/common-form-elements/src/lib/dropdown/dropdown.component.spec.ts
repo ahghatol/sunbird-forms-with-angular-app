@@ -1,6 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DropdownComponent } from './dropdown.component';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { PipesModule } from '../pipes/pipes.module';
+import { DropdownIconComponent } from '../icon/dropdown/dropdownIcon.component';
 
 describe('DropdownComponent', () => {
   let component: DropdownComponent;
@@ -8,7 +11,8 @@ describe('DropdownComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DropdownComponent ]
+      imports: [FormsModule, ReactiveFormsModule, PipesModule],
+      declarations: [ DropdownComponent, DropdownIconComponent ]
     })
     .compileComponents();
   }));

@@ -32,21 +32,20 @@ label{
 
 .multi-select-container .list-border ul {
   list-style-type: none;
-  position: inherit !important;
+  position: absolute;
   margin: 0;
   font-size: 14px;
   font-weight: bold;
-  padding-left: 0.3rem;
 }
 
 .multi-select-container .list-border {
   border: 0.5px solid var(--gray-400);
-  padding: 0.6rem 1.7rem 0.6rem 0.8rem !important;
+  padding: 1.3rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   left: 0;
-  height: inherit !important;
+  height: 40px;
 }
 
 .multi-select-container .list-border li {
@@ -282,7 +281,6 @@ label{
   border: 2px solid #80a7ce;
   max-height: 314px;
   overflow: scroll;
-  padding-left: 1rem;
 }
 
 .sb-modal-dropdown-web ul li {
@@ -290,10 +288,6 @@ label{
   margin-bottom: 8px;
   padding: 8px;
   font-size: 13px;
-}
-
-.sb-modal-dropdown-web ul li label{
-  padding-left: 0.5em;
 }
 
 .sb-modal-dropdown-web .selected-option {

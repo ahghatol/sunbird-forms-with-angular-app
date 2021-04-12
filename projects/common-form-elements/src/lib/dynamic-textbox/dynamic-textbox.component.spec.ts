@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DynamicTextboxComponent } from './dynamic-textbox.component';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 describe('DynamicTextboxComponent', () => {
   let component: DynamicTextboxComponent;
@@ -8,6 +9,7 @@ describe('DynamicTextboxComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [FormsModule, ReactiveFormsModule],
       declarations: [ DynamicTextboxComponent ]
     })
     .compileComponents();

@@ -1,6 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DynamicDropdownComponent } from './dynamic-dropdown.component';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { DropdownIconComponent } from '../icon/dropdown/dropdownIcon.component';
 
 describe('DynamicDropdownComponent', () => {
   let component: DynamicDropdownComponent;
@@ -8,7 +10,8 @@ describe('DynamicDropdownComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DynamicDropdownComponent ]
+      imports: [FormsModule, ReactiveFormsModule],
+      declarations: [ DynamicDropdownComponent, DropdownIconComponent ]
     })
     .compileComponents();
   }));

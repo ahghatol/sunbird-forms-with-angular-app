@@ -1,6 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TopicpickerComponent } from './topicpicker.component';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { DropdownIconComponent } from '../icon/dropdown/dropdownIcon.component';
 
 describe('TopicpickerComponent', () => {
   let component: TopicpickerComponent;
@@ -8,7 +10,8 @@ describe('TopicpickerComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ TopicpickerComponent ]
+      imports: [FormsModule, ReactiveFormsModule],
+      declarations: [ TopicpickerComponent, DropdownIconComponent ]
     })
     .compileComponents();
   }));

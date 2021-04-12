@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DynamicTextareaComponent } from './dynamic-textarea.component';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 describe('DynamicTextareaComponent', () => {
   let component: DynamicTextareaComponent;
@@ -8,6 +9,7 @@ describe('DynamicTextareaComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [FormsModule, ReactiveFormsModule],
       declarations: [ DynamicTextareaComponent ]
     })
     .compileComponents();

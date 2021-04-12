@@ -1,6 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MultipleDropdownComponent } from './multiple-dropdown.component';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { PipesModule } from '../pipes/pipes.module';
+import { CaretDownComponent } from '../icon/caret-down/caret-down.component';
 
 describe('MultipleDropdownComponent', () => {
   let component: MultipleDropdownComponent;
@@ -8,7 +11,8 @@ describe('MultipleDropdownComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ MultipleDropdownComponent ]
+      imports: [FormsModule, ReactiveFormsModule, PipesModule],
+      declarations: [ MultipleDropdownComponent, CaretDownComponent ]
     })
     .compileComponents();
   }));

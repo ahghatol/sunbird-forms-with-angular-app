@@ -6,6 +6,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { throwError as observableThrowError, of as observableOf, Observable, Subscription } from 'rxjs';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { FieldConfig } from './form.component.spec.data';
+import { PipesModule } from '../pipes/pipes.module';
 
 
 describe('FormComponent', () => {
@@ -15,7 +16,7 @@ describe('FormComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, BrowserDynamicTestingModule, FormsModule, ReactiveFormsModule],
+      imports: [HttpClientTestingModule, BrowserDynamicTestingModule, FormsModule, ReactiveFormsModule, PipesModule],
       declarations: [FormComponent],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [{ provide: FormBuilder, useValue: formBuilder }]
